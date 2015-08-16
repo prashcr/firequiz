@@ -15,26 +15,64 @@
     const Jumbotron = ReactBootstrap.Jumbotron;
     const Button = ReactBootstrap.Button;
     const Grid = ReactBootstrap.Grid;
+    const Panel = ReactBootstrap.Panel;
+    const Input = ReactBootstrap.Input;
 
     class QuizApp extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = {quiz: {questions: []}};
+      }
+      componentDidMount() {
+        var quizRef = new Firebase('https://firequiz.firebaseio.com/quizzes/' + this.props.i);
+        quizRef.on('value', snapshot => this.setState({
+          quiz: snapshot.val()
+        }));
+      }
       render() {
         return (
-          jumbotronInstance
+          <div>
+            {quizHeader}
+            <QuestionList data={this.state.quiz.questions}/>
+          </div>
         );
       }
     }
 
-    const jumbotronInstance = (
+    const quizHeader = (
       <Jumbotron>
         <Grid>
           <h1>How Smart Are You?</h1>
           <p>A slightly interesting quiz consisting of seven questions that I scraped from some place I can't remember</p>
-          <p><Button bsStyle='primary' href='https://github.com/prashcr/firequiz' target='_blank'>What's this?</Button></p>
+          <p><Button bsStyle="primary" href="https://github.com/prashcr/firequiz" target="_blank">What's this?</Button></p>
         </Grid>
       </Jumbotron>
     );
 
-    React.render(<QuizApp />, document.getElementById('content'));
+    class QuestionList extends React.Component {
+      render() {
+        return (
+          <Grid>
+            {this.props.data.map(question => <Question data={question} />)}
+          </Grid>
+        );
+      }
+    }
+
+    class Question extends React.Component {
+      render() {
+        return (
+          <Panel header={this.props.data.text}>
+            <Input type='select' placeholder='select'>
+              <option value='select'>select</option>
+              {this.props.data.choices.map((choice, i) => <option value={i}>{choice}</option>)}
+            </Input>
+          </Panel>
+        );
+      }
+    } 
+
+    React.render(<QuizApp i="0" />, document.getElementById('content'));
     </script>
   </body>
 </html>
