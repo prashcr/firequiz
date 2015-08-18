@@ -22,7 +22,8 @@
     class QuizApp extends React.Component {
       constructor(props) {
         super(props);
-        this.state = { quiz: {questions: []}, showResult: false };
+        this.state = { quiz: {questions: []}, showResult: false, correct: 0 };
+        this.completed = this.completed.bind(this);
       }
       componentDidMount() {
         const quizRef = new Firebase('https://firequiz.firebaseio.com/quizzes/' + this.props.i);
@@ -30,16 +31,29 @@
           quiz: snapshot.val()
         }));
       }
+      completed(values) {
+        console.log('complete');
+        let correct = 0;
+        values.forEach((v, i) => {
+          if (v == this.state.quiz.questions[i].answer) correct++;
+        });
+        console.log(correct);
+        this.setState({ correct: correct}, () => {
+          this.setState({ showResult: true });
+        });
+      }
       render() {
-        const completed = () => this.setState({ showResult: true });
         const closeResult = e => this.setState({ showResult: false });
         const questions = this.state.quiz.questions;
-        const questionList = questions.length > 0 ? <QuestionList data={questions} onComplete={completed} /> : null;
+        const questionList = questions.length > 0 
+          ? <QuestionList data={questions} onComplete={this.completed} />
+          : null;
         return (
           <div>
             {quizHeader}
             {questionList}
-            <Result show={this.state.showResult} onHide={closeResult} />
+            <Result show={this.state.showResult} onHide={closeResult}
+            correct={this.state.correct} total={questions.length} />
           </div>
         );
       }
@@ -49,7 +63,7 @@
       <Jumbotron>
         <Grid>
           <h1>How Smart Are You?</h1>
-          <p>A slightly interesting quiz consisting of seven questions that I scraped from some place I can't remember</p>
+          <p>A slightly interesting quiz consisting of seven questions that I scraped from some place I can't remember.</p>
           <p><Button bsStyle="primary" href="https://github.com/prashcr/firequiz"
             target="_blank">What's this?</Button></p>
         </Grid>
@@ -71,8 +85,8 @@
           }, () => {
             console.log(this.state.values)
             if (this.state.values.every(v => v != 'select')) {
-              console.log('complete');
-              this.props.onComplete();
+              this.props.onComplete(this.state.values);
+              this.setState({ values: this.props.data.map(q => 'select') });
             }
           });
         };
@@ -108,7 +122,7 @@
               <Modal.Title id="contained-modal-title-md">Your score</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              You got 
+              You got {this.props.correct} correct out of {this.props.total}!
             </Modal.Body>
             <Modal.Footer>
               <Button onClick={this.props.onHide}>Close</Button>
