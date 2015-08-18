@@ -1,7 +1,9 @@
 firequiz
 ====
 
-> A simple multiple-choice quiz built with React, Bootstrap, Firebase hosted on gh-pages
+> A simple multiple-choice quiz built with React, Bootstrap, Firebase hosted on gh-pages  
+  
+The questions are fetched from my Firebase url.
 
 [Demo](http://prashcr.xyz/firequiz)
   
