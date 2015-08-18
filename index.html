@@ -17,11 +17,12 @@
     const Grid = ReactBootstrap.Grid;
     const Panel = ReactBootstrap.Panel;
     const Input = ReactBootstrap.Input;
+    const Modal = ReactBootstrap.Modal;
 
     class QuizApp extends React.Component {
       constructor(props) {
         super(props);
-        this.state = {quiz: {questions: []}};
+        this.state = { quiz: {questions: []}, showResult: false };
       }
       componentDidMount() {
         var quizRef = new Firebase('https://firequiz.firebaseio.com/quizzes/' + this.props.i);
@@ -30,10 +31,12 @@
         }));
       }
       render() {
+        let closeResult = e => this.setState({ showResult: false });
         return (
           <div>
             {quizHeader}
             <QuestionList data={this.state.quiz.questions}/>
+            <Result show={this.state.showResult} onHide={closeResult} />
           </div>
         );
       }
@@ -53,21 +56,42 @@
       render() {
         return (
           <Grid>
-            {this.props.data.map(question => <Question data={question} />)}
+            {this.props.data.map((question, i) => <Question key={i} data={question} />)}
           </Grid>
         );
       }
     }
 
     class Question extends React.Component {
+      handleChange(e) {
+        
+      }
       render() {
         return (
           <Panel header={this.props.data.text}>
-            <Input type='select' placeholder='select'>
-              <option value='select'>select</option>
-              {this.props.data.choices.map((choice, i) => <option value={i}>{choice}</option>)}
+            <Input type="select" placeholder="select" onChange={this.handleChange}>
+              <option value="select">select</option>
+              {this.props.data.choices.map((choice, i) => <option key={i} value={i}>{choice}</option>)}
             </Input>
           </Panel>
+        );
+      }
+    }
+
+    class Result extends React.Component {
+      render() {
+        return (
+          <Modal {...this.props} bsSize="medium" aria-labelledby="contained-modal-title-md">
+            <Modal.Header closeButton>
+              <Modal.Title id="contained-modal-title-md">Your score</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              hello
+            </Modal.Body>
+            <Modal.Footer>
+              <Button onClick={this.props.onHide}>Close</Button>
+            </Modal.Footer>
+          </Modal>
         );
       }
     } 
